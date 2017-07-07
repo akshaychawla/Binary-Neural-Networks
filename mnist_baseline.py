@@ -13,6 +13,8 @@ import theano
 import theano.tensor as T
 import numpy as np
 import gzip, cPickle, math
+from tensorboard_logging import Logger
+from tqdm import *
 
 class Affine():
     def __init__(self, input, n_in, n_out, name):
@@ -53,7 +55,7 @@ def main():
 
     train_x, train_y, valid_x, valid_y, test_x, test_y = get_data()
 
-    num_epochs = 2 
+    num_epochs = 10 
     eta        = 0.001
     batch_size = 128
 
@@ -72,7 +74,7 @@ def main():
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
-    cost     = xent.mean()
+    cost     = xent.mean()/batch_size # scaling the mean
 
     # updates 
     params   = hidden_1.params + hidden_2.params + hidden_3.params 
@@ -82,7 +84,7 @@ def main():
         updates.append(
                 (p, p - eta*g) #sgd
             )
-    print grads, params
+    # print grads, params
 
     # compiling 
     train   = theano.function(
@@ -92,15 +94,27 @@ def main():
             )
 
     # train 
-    steps_per_epoch = math.ceil(len(train_x) / float(batch_size)) 
-    print steps_per_epoch
-    for i in range(num_epochs):
-        for lower in range(0, len(train_x), batch_size):
+    logger = Logger("logs/")
+    # steps_per_epoch = math.ceil(len(train_x) / float(batch_size)) 
+    # print steps_per_epoch
+    for epoch in range(num_epochs):
+        
+        print "Epoch: ", epoch
+        
+        epoch_hist = {"loss": []}
+        
+        t = tqdm(range(0, len(train_x), batch_size))
+        for lower in t:
             upper = min(len(train_x), lower + batch_size)
-            # print lower, upper
-            print train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))
-
-
+            loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))    
+            t.set_postfix(loss=loss)
+            epoch_hist["loss"].append(loss)
+        
+        logger.log_scalar(
+                tag="Training Loss", 
+                value=sum(epoch_hist["loss"])/len(epoch_hist["loss"]), 
+                step=epoch
+                )
 
 
 if __name__ == '__main__':
