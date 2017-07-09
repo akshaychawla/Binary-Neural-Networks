@@ -5,7 +5,7 @@ Architecture:
     Input (784) => hidden-1 (2048) + ReLU => hidden-2 (2048) + ReLU => hidden-3 (2048) + ReLU => output (10) + softmax  
     Loss function = Cross entropy 
 
-Original Paper: https://arxiv.org/pdf/1602.02830.pdf ( Binarized Neural Networks: Training Neural Networks with Weights and Activations Constrained to +1 or -1)
+Paper: https://arxiv.org/pdf/1602.02830.pdf ( Binarized Neural Networks: Training Neural Networks with Weights and Activations Constrained to +1 or -1)
 Initial Learning rate = 0.001
 '''
 
@@ -76,6 +76,10 @@ def main():
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
     cost     = xent.mean()/batch_size # scaling the mean
 
+    # errors 
+    y_pred   = T.argmax(softmax.output, axis=1)
+    errors   = T.mean(T.neq(y, y_pred))
+
     # updates 
     params   = hidden_1.params + hidden_2.params + hidden_3.params 
     grads    = [T.grad(cost, param) for param in params]
@@ -84,19 +88,24 @@ def main():
         updates.append(
                 (p, p - eta*g) #sgd
             )
-    # print grads, params
 
-    # compiling 
+    # compiling train, predict and test fxns 
     train   = theano.function(
                 inputs  = [x,y],
                 outputs = cost,
-                updates=updates
+                updates = updates
+            )
+    predict = theano.function(
+                inputs  = [x],
+                outputs = y_pred
+            )
+    test    = theano.function(
+                inputs  = [x,y],
+                outputs = errors
             )
 
     # train 
     logger = Logger("logs/")
-    # steps_per_epoch = math.ceil(len(train_x) / float(batch_size)) 
-    # print steps_per_epoch
     for epoch in range(num_epochs):
         
         print "Epoch: ", epoch
@@ -107,14 +116,26 @@ def main():
         for lower in t:
             upper = min(len(train_x), lower + batch_size)
             loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))    
-            t.set_postfix(loss=loss)
+            t.set_postfix(loss="{:.2f}".format(float(loss)))
             epoch_hist["loss"].append(loss)
         
+        # epoch loss
+        average_loss = sum(epoch_hist["loss"])/len(epoch_hist["loss"])         
+        t.set_postfix(loss="{:.2f}".format(float(average_loss)))
         logger.log_scalar(
                 tag="Training Loss", 
-                value=sum(epoch_hist["loss"])/len(epoch_hist["loss"]), 
+                value= average_loss,
                 step=epoch
                 )
+
+        # validation accuracy 
+        val_acc  =  1.0 - test(valid_x, valid_y.astype(np.int32))
+        logger.log_scalar(
+                tag="Validation Accuracy", 
+                value= val_acc,
+                step=epoch
+                )        
+
 
 
 if __name__ == '__main__':
