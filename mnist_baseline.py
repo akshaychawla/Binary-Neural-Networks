@@ -58,7 +58,7 @@ def main():
 
     num_epochs = 250 
     eta        = 0.001
-    batch_size = 32
+    batch_size = 256
 
     # input 
     x = T.matrix("x")
