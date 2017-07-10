@@ -1,5 +1,5 @@
 ''' 
-Baseline neural network for classification of MNIST digits 
+Binary (+-1) neural network for classification of MNIST digits 
 
 Architecture: 
     Input (784) => hidden-1 (2048) + ReLU => hidden-2 (2048) + ReLU => hidden-3 (2048) + ReLU => output (10) + softmax  
@@ -16,7 +16,15 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 
-class Affine():
+def binarize(W):
+    ''' Convert the float32 data to +-1 '''
+    Wb = T.cast(T.where(W>=0.0, 1, -1), dtype=theano.config.floatX)
+    return Wb
+
+def clip_weights(w):
+    return T.clip(w, -1.0, 1.0)
+
+class BinaryAffine():
     def __init__(self, input, n_in, n_out, name):
         self.W = theano.shared(
                 np.random.randn(n_in, n_out),
@@ -26,10 +34,11 @@ class Affine():
                 np.zeros((n_out,)),
                 name  = "b_" + name, 
                 )
-
-        self.input  = input 
-        self.params = [self.W, self.b]
-        self.output = T.dot(self.input, self.W) + self.b
+        self.Wb         = binarize(self.W)
+        self.input      = input 
+        self.params     = [self.W, self.b]
+        self.params_bin = [self.Wb, self.b]
+        self.output     = T.dot(self.input, self.Wb) + self.b
 
 class Activation():
     def __init__(self, input, activation, name):
@@ -63,13 +72,13 @@ def main():
     x = T.matrix("x")
     y = T.ivector("y")
 
-    hidden_1 = Affine(input=x, n_in=784, n_out=2048, name="hidden_1")
+    hidden_1 = BinaryAffine(input=x, n_in=784, n_out=2048, name="hidden_1")
     act_1    = Activation(input=hidden_1.output, activation="relu", name="act_1")
-    hidden_2 = Affine(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
+    hidden_2 = BinaryAffine(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
     act_2    = Activation(input=hidden_2.output, activation="relu", name="act_2")
-    hidden_3 = Affine(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
+    hidden_3 = BinaryAffine(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
     act_3    = Activation(input=hidden_3.output, activation="relu", name="act_3")
-    output   = Affine(input=act_3.output, n_in=2048, n_out=10, name="output")
+    output   = BinaryAffine(input=act_3.output, n_in=2048, n_out=10, name="output")
     softmax  = Activation(input=output.output, activation="softmax", name="softmax")
 
     # loss
@@ -80,13 +89,14 @@ def main():
     y_pred   = T.argmax(softmax.output, axis=1)
     errors   = T.mean(T.neq(y, y_pred))
 
-    # updates 
-    params   = hidden_1.params + hidden_2.params + hidden_3.params 
-    grads    = [T.grad(cost, param) for param in params]
+    # updates + clipping (+-1)
+    params_bin   = hidden_1.params_bin + hidden_2.params_bin + hidden_3.params_bin 
+    params       = hidden_1.params + hidden_2.params + hidden_3.params
+    grads    = [T.grad(cost, param) for param in params_bin] # calculate grad w.r.t binary parameters
     updates  = []
-    for p,g in zip(params, grads):
+    for p,g in zip(params, grads): # gradient update on full precision weights (NOT binarized wts)
         updates.append(
-                (p, p - eta*g) #sgd
+                (p, clip_weights(p - eta*g)) #sgd + clipping update
             )
 
     # compiling train, predict and test fxns 
