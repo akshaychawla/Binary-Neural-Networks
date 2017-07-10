@@ -15,6 +15,7 @@ import numpy as np
 import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
+from time import time
 
 def binarize(W):
     ''' Convert the float32 data to +-1 '''
@@ -64,9 +65,9 @@ def main():
 
     train_x, train_y, valid_x, valid_y, test_x, test_y = get_data()
 
-    num_epochs = 10 
+    num_epochs = 250 
     eta        = 0.001
-    batch_size = 128
+    batch_size = 32
 
     # input 
     x = T.matrix("x")
@@ -115,7 +116,7 @@ def main():
             )
 
     # train 
-    logger = Logger("logs/")
+    logger = Logger("logs/{}".format(time()))
     for epoch in range(num_epochs):
         
         print "Epoch: ", epoch
@@ -127,7 +128,7 @@ def main():
             upper = min(len(train_x), lower + batch_size)
             loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))    
             t.set_postfix(loss="{:.2f}".format(float(loss)))
-            epoch_hist["loss"].append(loss)
+            epoch_hist["loss"].append(loss.astype(np.float32))
         
         # epoch loss
         average_loss = sum(epoch_hist["loss"])/len(epoch_hist["loss"])         
