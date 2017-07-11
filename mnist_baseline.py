@@ -18,14 +18,20 @@ from tqdm import *
 from time import time 
 from layers import Dense, Activation
 from utils import get_data
+import argparse
+
+parser = argparse.ArgumentParser(description="baseline neural network for mnist")
+parser.add_argument("--epochs", type=int, help="Number of epochs")
+parser.add_argument("--batch_size", type=int, help="Batchsize value (different for local/prod)")
+args = parser.parse_args()
 
 def main():
 
     train_x, train_y, valid_x, valid_y, test_x, test_y = get_data()
 
-    num_epochs = 250 
+    num_epochs = args.epochs
     eta        = 0.001
-    batch_size = 256
+    batch_size = args.batch_size
 
     # input 
     x = T.matrix("x")
