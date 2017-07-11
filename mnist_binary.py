@@ -16,50 +16,8 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 from time import time
-
-def binarize(W):
-    ''' Convert the float32 data to +-1 '''
-    Wb = T.cast(T.where(W>=0.0, 1, -1), dtype=theano.config.floatX)
-    return Wb
-
-def clip_weights(w):
-    return T.clip(w, -1.0, 1.0)
-
-class BinaryAffine():
-    def __init__(self, input, n_in, n_out, name):
-        self.W = theano.shared(
-                np.random.randn(n_in, n_out),
-                name  = "W_" + name
-                )
-        self.b = theano.shared(
-                np.zeros((n_out,)),
-                name  = "b_" + name, 
-                )
-        self.Wb         = binarize(self.W)
-        self.input      = input 
-        self.params     = [self.W, self.b]
-        self.params_bin = [self.Wb, self.b]
-        self.output     = T.dot(self.input, self.Wb) + self.b
-
-class Activation():
-    def __init__(self, input, activation, name):
-        self.input = input
-        
-        if activation   == "relu":
-            self.output = T.nnet.relu(self.input)
-        elif activation == "softmax":
-            self.output = T.nnet.softmax(self.input) 
-
-
-def get_data():
-    f = gzip.open('mnist.pkl.gz','rb')
-    train_set, valid_set, test_set = cPickle.load(f)
-    f.close()
-
-    train_x, train_y = train_set
-    valid_x, valid_y = valid_set
-    test_x , test_y  = test_set
-    return train_x, train_y, valid_x, valid_y, test_x, test_y
+from layers import BinaryDense, Activation, clip_weights
+from utils import get_data
 
 def main():
 
@@ -73,13 +31,13 @@ def main():
     x = T.matrix("x")
     y = T.ivector("y")
 
-    hidden_1 = BinaryAffine(input=x, n_in=784, n_out=2048, name="hidden_1")
+    hidden_1 = BinaryDense(input=x, n_in=784, n_out=2048, name="hidden_1")
     act_1    = Activation(input=hidden_1.output, activation="relu", name="act_1")
-    hidden_2 = BinaryAffine(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
+    hidden_2 = BinaryDense(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
     act_2    = Activation(input=hidden_2.output, activation="relu", name="act_2")
-    hidden_3 = BinaryAffine(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
+    hidden_3 = BinaryDense(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
     act_3    = Activation(input=hidden_3.output, activation="relu", name="act_3")
-    output   = BinaryAffine(input=act_3.output, n_in=2048, n_out=10, name="output")
+    output   = BinaryDense(input=act_3.output, n_in=2048, n_out=10, name="output")
     softmax  = Activation(input=output.output, activation="softmax", name="softmax")
 
     # loss

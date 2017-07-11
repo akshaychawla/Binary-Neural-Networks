@@ -16,41 +16,8 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 from time import time 
-
-class Affine():
-    def __init__(self, input, n_in, n_out, name):
-        self.W = theano.shared(
-                np.random.randn(n_in, n_out),
-                name  = "W_" + name
-                )
-        self.b = theano.shared(
-                np.zeros((n_out,)),
-                name  = "b_" + name, 
-                )
-
-        self.input  = input 
-        self.params = [self.W, self.b]
-        self.output = T.dot(self.input, self.W) + self.b
-
-class Activation():
-    def __init__(self, input, activation, name):
-        self.input = input
-        
-        if activation   == "relu":
-            self.output = T.nnet.relu(self.input)
-        elif activation == "softmax":
-            self.output = T.nnet.softmax(self.input) 
-
-
-def get_data():
-    f = gzip.open('mnist.pkl.gz','rb')
-    train_set, valid_set, test_set = cPickle.load(f)
-    f.close()
-
-    train_x, train_y = train_set
-    valid_x, valid_y = valid_set
-    test_x , test_y  = test_set
-    return train_x, train_y, valid_x, valid_y, test_x, test_y
+from layers import Dense, Activation
+from utils import get_data
 
 def main():
 
@@ -64,13 +31,13 @@ def main():
     x = T.matrix("x")
     y = T.ivector("y")
 
-    hidden_1 = Affine(input=x, n_in=784, n_out=2048, name="hidden_1")
+    hidden_1 = Dense(input=x, n_in=784, n_out=2048, name="hidden_1")
     act_1    = Activation(input=hidden_1.output, activation="relu", name="act_1")
-    hidden_2 = Affine(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
+    hidden_2 = Dense(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
     act_2    = Activation(input=hidden_2.output, activation="relu", name="act_2")
-    hidden_3 = Affine(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
+    hidden_3 = Dense(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
     act_3    = Activation(input=hidden_3.output, activation="relu", name="act_3")
-    output   = Affine(input=act_3.output, n_in=2048, n_out=10, name="output")
+    output   = Dense(input=act_3.output, n_in=2048, n_out=10, name="output")
     softmax  = Activation(input=output.output, activation="softmax", name="softmax")
 
     # loss
