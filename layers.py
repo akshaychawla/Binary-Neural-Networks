@@ -1,4 +1,6 @@
 import theano 
+from theano.tensor.shared_randomstreams import RandomStreams
+from theano.ifelse import ifelse
 import theano.tensor as T
 import numpy as np
 import gzip, cPickle, math
@@ -55,4 +57,12 @@ class BinaryDense():
         self.params     = [self.W, self.b]
         self.params_bin = [self.Wb, self.b]
         self.output     = T.dot(self.input, self.Wb) + self.b
+
+class Dropout():
+    def __init__(self, input, p, drop_switch):
+        self.input  = input 
+        self.srng   = RandomStreams(seed=234)
+        self.rv_n   = self.srng.normal(self.input.shape)
+        self.mask   = T.cast(self.rv_n < p, dtype=theano.config.floatX) / p # first  dropout mask, scaled with /p so we do not have to perform test time scaling (source: cs231n) 
+        self.output = ifelse(drop_switch>0.5, self.input * self.mask, self.input) # only drop if drop == 1.0
 

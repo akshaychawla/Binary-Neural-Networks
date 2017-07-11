@@ -16,7 +16,7 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 from time import time 
-from layers import Dense, Activation
+from layers import Dense, Activation, Dropout
 from utils import get_data
 import argparse
 
@@ -36,14 +36,18 @@ def main():
     # input 
     x = T.matrix("x")
     y = T.ivector("y")
+    drop_switch = T.scalar("drop_switch")
 
     hidden_1 = Dense(input=x, n_in=784, n_out=2048, name="hidden_1")
     act_1    = Activation(input=hidden_1.output, activation="relu", name="act_1")
-    hidden_2 = Dense(input=act_1.output, n_in=2048, n_out=2048, name="hidden_2")
+    drop_1   = Dropout(input=act_1.output, p=0.5, drop_switch=drop_switch)
+    hidden_2 = Dense(input=drop_1.output, n_in=2048, n_out=2048, name="hidden_2")
     act_2    = Activation(input=hidden_2.output, activation="relu", name="act_2")
-    hidden_3 = Dense(input=act_2.output, n_in=2048, n_out=2048, name="hidden_3")
+    drop_2   = Dropout(input=act_2.output, p=0.5, drop_switch=drop_switch)
+    hidden_3 = Dense(input=drop_2.output, n_in=2048, n_out=2048, name="hidden_3")
     act_3    = Activation(input=hidden_3.output, activation="relu", name="act_3")
-    output   = Dense(input=act_3.output, n_in=2048, n_out=10, name="output")
+    drop_3   = Dropout(input=act_3.output, p=0.5, drop_switch=drop_switch)
+    output   = Dense(input=drop_3.output, n_in=2048, n_out=10, name="output")
     softmax  = Activation(input=output.output, activation="softmax", name="softmax")
 
     # loss
@@ -63,18 +67,18 @@ def main():
                 (p, p - eta*g) #sgd
             )
 
-    # compiling train, predict and test fxns 
+    # compiling train, predict and test fxns     
     train   = theano.function(
-                inputs  = [x,y],
+                inputs  = [x,y,drop_switch],
                 outputs = cost,
                 updates = updates
             )
     predict = theano.function(
-                inputs  = [x],
+                inputs  = [x,drop_switch],
                 outputs = y_pred
             )
     test    = theano.function(
-                inputs  = [x,y],
+                inputs  = [x,y,drop_switch],
                 outputs = errors
             )
 
@@ -83,13 +87,13 @@ def main():
     for epoch in range(num_epochs):
         
         print "Epoch: ", epoch
-        
+        print "LR: ", eta
         epoch_hist = {"loss": []}
         
         t = tqdm(range(0, len(train_x), batch_size))
         for lower in t:
             upper = min(len(train_x), lower + batch_size)
-            loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))    
+            loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32), 1.0) # drop    
             t.set_postfix(loss="{:.2f}".format(float(loss)))
             epoch_hist["loss"].append(loss.astype(np.float32))
         
@@ -103,7 +107,8 @@ def main():
                 )
 
         # validation accuracy 
-        val_acc  =  1.0 - test(valid_x, valid_y.astype(np.int32))
+        val_acc  =  1.0 - test(valid_x, valid_y.astype(np.int32), 0.0) # nodrop
+        print "Validation Accuracy: ", val_acc
         logger.log_scalar(
                 tag="Validation Accuracy", 
                 value= val_acc,
