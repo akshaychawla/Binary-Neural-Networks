@@ -22,7 +22,8 @@ An attempt to recreate neural networks where the weights and activations are bin
 
 
 ### Experiment 1: MNIST
-In this experiment a baseline and binarized version of a standard MLP is trained on the MNIST dataset. In order to have a fair comparison between the two networks, the data is not augmented and dropout is applied to the baseline network to give it a fair chance against the binary network (as the binarization acts as a regularizer). The learning rate is set at a constant 0.001 and both networks are trained for 200 epochs with a batch size of 256. The training loss and validation accuracy is visualized in tensorboard using [this gist](https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514). The basic architecture is as follows: 
+In this experiment a baseline and binarized version of a standard MLP is trained on the MNIST dataset. In order to have a fair comparison between the two networks, the data is not augmented and dropout is applied to the baseline network to give it a fair chance against the binary network (as the binarization acts as a regularizer). The learning rate is set at a constant 0.001 and both networks are trained for 200 epochs with a batch size of 256. The training loss and validation accuracy is visualized in tensorboard using [this gist](https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514). The basic architecture is as follows:
+ 
 ![architecture](readme_data/network_arch.jpg "architecture")
 
 #### Results
