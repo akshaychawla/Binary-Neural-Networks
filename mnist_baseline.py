@@ -113,8 +113,11 @@ def main():
                 tag="Validation Accuracy", 
                 value= val_acc,
                 step=epoch
-                )        
+                )  
 
+    # Report Results on test set 
+    test_acc = 1.0 - test(test_x, test_y.astype(np.int32), 0.0) # dropout disabled    
+    print "Test accuracy: ",test_acc
 
 
 if __name__ == '__main__':
