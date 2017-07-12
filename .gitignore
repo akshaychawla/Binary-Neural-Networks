@@ -2,3 +2,5 @@ logs/*
 *.pkl
 *.pyc
 *.png
+!readme_data/network_arch.png
+!readme_data/quantize.png
