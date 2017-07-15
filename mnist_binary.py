@@ -17,7 +17,7 @@ from tensorboard_logging import Logger
 from tqdm import *
 from time import time
 from layers import BinaryDense, Activation, clip_weights
-from utils import get_data
+from utils import get_data, ModelCheckpoint, load_model
 import argparse
 
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
@@ -80,6 +80,7 @@ def main():
             )
 
     # train 
+    checkpoint = ModelCheckpoint(folder="snapshots")
     logger = Logger("logs/{}".format(time()))
     for epoch in range(num_epochs):
         
@@ -110,10 +111,14 @@ def main():
                 tag="Validation Accuracy", 
                 value= val_acc,
                 step=epoch
-                )        
+                )
+        checkpoint.check(val_acc, params)        
 
     # Report Results on test set 
-    test_acc = 1.0 - test(test_x, test_y.astype(np.int32), 0.0) # dropout disabled    
+    best_val_acc_filename = checkpoint.best_val_acc_filename
+    print "Using ", best_val_acc_filename, " to calculate best test acc."
+    load_model(path=best_val_acc_filename, params=params)
+    test_acc = 1.0 - test(test_x, test_y.astype(np.int32))    
     print "Test accuracy: ",test_acc
 
 
