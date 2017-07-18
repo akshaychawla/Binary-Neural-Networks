@@ -28,7 +28,9 @@ In this experiment a baseline and binarized version of a standard MLP is trained
 
 #### Results
 1. Baseline
-![Training Loss](readme_data/baseline_loss.png "Training Loss") ![Validation Accuracy](readme_data/baseline_acc.png "Validation Accuracy")
+<img src="readme_data/baseline_loss.png" alt="Drawing" style="width: 200px;"/>
+<img src="readme_data/baseline_acc.png" alt="Drawing" style="width: 200px;"/>
+<!-- [Training Loss](readme_data/baseline_loss.png "Training Loss") ![Validation Accuracy](readme_data/baseline_acc.png "Validation Accuracy") -->!
 Test accuracy: 0.9687 
 
 2. Binarized 
