@@ -14,9 +14,9 @@ An attempt to recreate neural networks where the weights and activations are bin
 
 ### Idea
 1. Regularization: Binarization of weights is a form of noise for the system. Hence just like dropout, binarization can act as a regularizer. 
-2. Discretization is a form of corruption, we can make discretization errors in different weights but the randomness of this curroption cancels out these errors. 
-3. Perform forward and backward pass using binarized form of weights, however keep a second set of weights (using full precision fp32) for gradient update. This is because SGD makes infinitesimal changes that would be lost due to binarization. Hence during forward pass one can sample a set of binary weights from full precision weights. 
-4. Deterministic binarization: W<sub>b</sub> = +1.0 if W >=0 ; else -1.0. 
+2. Discretization is a form of corruption, we can make discretization errors in different weights but the randomness of this corruption cancels out these errors. 
+3. Perform forward and backward pass using binarized form of weights, however keep a second set of weights (using full precision fp32) for gradient update. This is because SGD makes infinitesimal changes that would be lost due to binarization. For forward pass, sample a set of binary weights from full precision weights using deterministic or stochastic binarization. 
+4. Deterministic binarization: W<sub>b</sub> = +1 if W >=0 ; else -1. 
 5. Stochastic binarization: (TODO)
 6. Clip weights if they exceed +1/-1 as they do not contribute to the network due to the binarization.  
 
@@ -49,5 +49,5 @@ Test accuracy: 0.9372
 (TODO)
 
 ### Why?
-This work is a result of my curiosity to understand computation problems that arise with the deployment of neural networks. I am fascinated by some recent works that have come up with effective ways to compress, prune and quantize deep networks so that they run on small embedded devices. This is a (tiny) step in that direction.    
+This repository is the result of my curiosity to fix computation problems that arise with the deployment of (very big) neural networks. I am fascinated by recent research that has come up with effective ways to compress, prune and/or quantize deep networks so that they run in resource constrained environments like ARM chips. This is a (tiny) step in that direction.    
 
