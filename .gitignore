@@ -4,4 +4,8 @@ logs/*
 *.png
 !readme_data/network_arch.png
 !readme_data/quantize.png
+!readme_data/baseline_loss.png
+!readme_data/baseline_acc.png
+!readme_data/binary_loss.png
+!readme_data/binary_acc.png
 snapshots/*

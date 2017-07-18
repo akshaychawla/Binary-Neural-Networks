@@ -27,8 +27,13 @@ In this experiment a baseline and binarized version of a standard MLP is trained
 ![architecture](readme_data/network_arch.jpg "architecture")
 
 #### Results
-(TODO)
+1. Baseline
+![Training Loss](readme_data/baseline_loss.png "Training Loss") ![Validation Accuracy](readme_data/baseline_acc.png "Validation Accuracy")
+Test accuracy: 0.9687 
 
+2. Binarized 
+![Training Loss](readme_data/binary_loss.png "Training Loss") ![Validation Accuracy](readme_data/binary_acc.png "Validation Accuracy")
+Test accuracy: 0.9372 
 
 ### Experiment 2: CIFAR 10
 (TODO)
