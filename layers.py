@@ -33,6 +33,22 @@ class Dense():
         self.params = [self.W, self.b]
         self.output = T.dot(self.input, self.W) + self.b
 
+class Conv2D():
+    def __init__(self, input, filter_shape, strides, padding, name):
+        self.W = theano.shared(
+                np.random.randn(*filter_shape),
+                name = "W_" + name  
+                )
+        self.b = theano.shared(
+                np.zeros((filter_shape[0],)),
+                name = "b_" + name
+                )
+        self.input = input 
+        self.params = [self.W, self.b]
+
+        self.output = T.nnet.conv2d(self.input, self.W, border_mode=padding, subsample=strides) + self.b.dimshuffle('x', 0, 'x', 'x')
+
+
 class Activation():
     def __init__(self, input, activation, name):
         self.input = input
