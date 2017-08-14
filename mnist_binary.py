@@ -17,7 +17,7 @@ from tensorboard_logging import Logger
 from tqdm import *
 from time import time
 from layers import BinaryDense, Activation, clip_weights
-from utils import get_data, ModelCheckpoint, load_model
+from utils import get_mnist, ModelCheckpoint, load_model
 import argparse
 
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 def main():
 
-    train_x, train_y, valid_x, valid_y, test_x, test_y = get_data()
+    train_x, train_y, valid_x, valid_y, test_x, test_y = get_mnist()
 
     num_epochs = args.epochs 
     eta        = 0.001
