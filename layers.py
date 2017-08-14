@@ -2,6 +2,7 @@ import theano
 from theano.tensor.shared_randomstreams import RandomStreams
 from theano.ifelse import ifelse
 import theano.tensor as T
+import theano.tensor.signal.pool as pool # This is required or else signal module is unavailable
 import numpy as np
 import gzip, cPickle, math
 from tensorboard_logging import Logger
@@ -34,7 +35,9 @@ class Dense():
         self.output = T.dot(self.input, self.W) + self.b
 
 class Conv2D():
-    def __init__(self, input, filter_shape, strides, padding, name):
+    def __init__(self, input, num_filters, input_channels, size, strides, padding, name):
+        
+        filter_shape = (num_filters, input_channels, size, size)
         self.W = theano.shared(
                 np.random.randn(*filter_shape),
                 name = "W_" + name  
@@ -49,10 +52,15 @@ class Conv2D():
         self.output = T.nnet.conv2d(self.input, self.W, border_mode=padding, subsample=strides) + self.b.dimshuffle('x', 0, 'x', 'x')
 
 class Pool2D():
-    def __init__(self, input, stride):
+    def __init__(self, input, stride, name):
         self.input = input 
-        self.output = T.signal.pool.pool_2d(input = self.input, ws = stride, ignore_border=True)
-        
+        self.output = pool.pool_2d(input = self.input, ws = stride, ignore_border=True)
+
+class Flatten():
+    def __init__(self, input):
+        self.input = input 
+        self.output = T.flatten(self.input, outdim=2)
+
 
 class Activation():
     def __init__(self, input, activation, name):
