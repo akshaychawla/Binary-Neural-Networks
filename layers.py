@@ -48,6 +48,11 @@ class Conv2D():
 
         self.output = T.nnet.conv2d(self.input, self.W, border_mode=padding, subsample=strides) + self.b.dimshuffle('x', 0, 'x', 'x')
 
+class Pool2D():
+    def __init__(self, input, stride):
+        self.input = input 
+        self.output = T.signal.pool.pool_2d(input = self.input, ws = stride, ignore_border=True)
+        
 
 class Activation():
     def __init__(self, input, activation, name):
