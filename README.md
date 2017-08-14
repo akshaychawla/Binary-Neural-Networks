@@ -1,4 +1,4 @@
-**Note: This is still an ongoing project, major changes and results are expected in the near future**
+**Note: This is still an ongoing project, changes and results will keep appearing as experiments are run**
  
 # Binary Neural Networks
 An attempt to recreate neural networks where the weights and activations are binary variables. This is a common underlying theme of the papers [BinaryConnect](https://arxiv.org/abs/1511.00363), [Binarized neural networks](https://arxiv.org/abs/1602.02830) and [XNOR-Net](https://arxiv.org/abs/1603.05279). The goal is to free these high performing deep learning models from the shackles of a supercomputer (read: GPUs) and bring them to edge devices which typically have a much lower memory footprint and limited computation capabilities. 
@@ -10,7 +10,7 @@ An attempt to recreate neural networks where the weights and activations are bin
 2. Python 2.7
 3. numpy 
 4. tqdm (awesome progbars)
-5. tensorboard (logging data)
+5. tensorboard (logging)
 
 ### Idea
 1. Regularization: Binarization of weights is a form of noise for the system. Hence just like dropout, binarization can act as a regularizer. 
