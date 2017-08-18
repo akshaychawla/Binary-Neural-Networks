@@ -8,6 +8,7 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 from time import time 
+import ipdb
 
 # layer utilities
 def binarize(W):
@@ -21,8 +22,10 @@ def clip_weights(w):
 # Deep learning layers
 class Dense():
     def __init__(self, input, n_in, n_out, name):
+        
+        filter_shape = (n_in, n_out)
         self.W = theano.shared(
-                np.random.randn(n_in, n_out),
+                Dense.he_normal(filter_shape),
                 name  = "W_" + name
                 )
         self.b = theano.shared(
@@ -33,13 +36,21 @@ class Dense():
         self.input  = input 
         self.params = [self.W, self.b]
         self.output = T.dot(self.input, self.W) + self.b
+    
+    @staticmethod
+    def he_normal(filter_shape):
+        """ Return weights having mean = 0.0 and a limit (variance) = sqrt(2/fan_in) """
+        fan_in, fan_out = filter_shape
+        weights = np.random.normal(loc = 0.0, scale = np.sqrt(2/fan_in), size = filter_shape)
+        return weights
+
 
 class Conv2D():
     def __init__(self, input, num_filters, input_channels, size, strides, padding, name):
         
         filter_shape = (num_filters, input_channels, size, size)
         self.W = theano.shared(
-                np.random.randn(*filter_shape),
+                Conv2D.he_normal(filter_shape),
                 name = "W_" + name  
                 )
         self.b = theano.shared(
@@ -50,6 +61,16 @@ class Conv2D():
         self.params = [self.W, self.b]
 
         self.output = T.nnet.conv2d(self.input, self.W, border_mode=padding, subsample=strides) + self.b.dimshuffle('x', 0, 'x', 'x')
+   
+    @staticmethod
+    def he_normal(filter_shape):
+        """ Return weights having mean = 0.0 and a limit (variance) = sqrt(2/fan_in) """
+        
+        fan_in = np.prod(filter_shape[1:]).astype("float32")
+        weights = np.random.normal(loc = 0.0, scale = np.sqrt(2/fan_in), size = filter_shape)
+        
+        return weights
+        
 
 class Pool2D():
     def __init__(self, input, stride, name):
