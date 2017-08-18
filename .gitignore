@@ -13,3 +13,4 @@ cifar-10-batches-py/data_batch*
 cifar-10-batches-py/readme.html
 cifar-10-batches-py/batches.meta
 cifar-10-batches-py/test_batch
+*.swp
