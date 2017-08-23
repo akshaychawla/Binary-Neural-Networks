@@ -20,6 +20,11 @@ from layers import Dense, Activation, Dropout
 from utils import get_mnist, ModelCheckpoint, load_model
 import argparse
 
+#import theano 
+#theano.config.optimizer="fast_compile"
+#theano.config.exception_verbosity="high"
+#theano.config.compute_test_value="warn"
+
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
 parser.add_argument("--epochs", type=int, help="Number of epochs")
 parser.add_argument("--batch_size", type=int, help="Batchsize value (different for local/prod)")
@@ -37,7 +42,11 @@ def main():
     x = T.matrix("x")
     y = T.ivector("y")
     drop_switch = T.scalar("drop_switch")
-
+    
+    #x.tag.test_value = np.random.randn(3, 784).astype("float32")
+    #y.tag.test_value = np.array([1,2,3])
+    #drop_switch.tag.test_value = 0
+    #import ipdb; ipdb.set_trace()
     hidden_1 = Dense(input=x, n_in=784, n_out=2048, name="hidden_1")
     act_1    = Activation(input=hidden_1.output, activation="relu", name="act_1")
     drop_1   = Dropout(input=act_1.output, p=0.5, drop_switch=drop_switch)
@@ -52,7 +61,7 @@ def main():
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
-    cost     = xent.mean()/batch_size # scaling the mean
+    cost     = xent.mean() # not scaling the mean
 
     # errors 
     y_pred   = T.argmax(softmax.output, axis=1)
