@@ -72,6 +72,26 @@ class Conv2D():
         return weights
         
 
+class BinaryConv2D():
+    def __init__(self, input, num_filters, input_channels, size, strides, padding, name):
+        
+        filter_shape = (num_filters, input_channels, size, size)
+        self.W = theano.shared(
+                Conv2D.he_normal(filter_shape),
+                name = "W_" + name  
+                )
+        self.b = theano.shared(
+                np.zeros((filter_shape[0],)),
+                name = "b_" + name
+                )
+        
+        self.input = input 
+        self.Wb    = binarize(self.W)
+        self.params = [self.W, self.b]
+        self.params_bin = [self.Wb, self.b]
+        self.output = T.nnet.conv2d(self.input, self.Wb, border_mode=padding, subsample=strides) + self.b.dimshuffle('x', 0, 'x', 'x')
+   
+
 class Pool2D():
     def __init__(self, input, stride, name):
         self.input = input 
@@ -94,14 +114,17 @@ class Activation():
 
 class BinaryDense():
     def __init__(self, input, n_in, n_out, name):
+        
+        filter_shape = (n_in, n_out)
         self.W = theano.shared(
-                np.random.randn(n_in, n_out),
+                Dense.he_normal(filter_shape),
                 name  = "W_" + name
                 )
         self.b = theano.shared(
                 np.zeros((n_out,)),
                 name  = "b_" + name, 
                 )
+
         self.Wb         = binarize(self.W)
         self.input      = input 
         self.params     = [self.W, self.b]
