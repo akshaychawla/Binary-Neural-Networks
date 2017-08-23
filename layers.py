@@ -41,6 +41,7 @@ class Dense():
     def he_normal(filter_shape):
         """ Return weights having mean = 0.0 and a limit (variance) = sqrt(2/fan_in) """
         fan_in, fan_out = filter_shape
+        fan_in, fan_out = float(fan_in), float(fan_out)
         weights = np.random.normal(loc = 0.0, scale = np.sqrt(2/fan_in), size = filter_shape)
         return weights
 
