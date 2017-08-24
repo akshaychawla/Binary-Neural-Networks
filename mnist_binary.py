@@ -57,7 +57,7 @@ def main():
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
-    cost     = xent.mean() # not scaling the mean
+    cost     = xent.mean()/batch_size # scaling the mean
 
     # errors 
     y_pred   = T.argmax(softmax.output, axis=1)
