@@ -101,7 +101,7 @@ class Pool2D():
 class Flatten():
     def __init__(self, input):
         self.input = input 
-        self.output = T.flatten(self.input, outdim=2)
+        self.output = T.flatten(self.input, ndim=2)
 
 
 class Activation():
