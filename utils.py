@@ -67,6 +67,12 @@ def get_mnist():
     train_x, train_y = train_set
     valid_x, valid_y = valid_set
     test_x , test_y  = test_set
+
+    # shuffle training data
+    idx = np.array(range(len(train_x)))
+    np.random.shuffle(idx)
+    train_x = train_x[idx]
+    train_y = train_y[idx]
     return train_x, train_y, valid_x, valid_y, test_x, test_y 
 
 def unpickle(file):
@@ -111,5 +117,11 @@ def get_cifar10(ROOT):
 
     valid_x = Xtr[val_indices]
     valid_y = Ytr[val_indices]
+
+    # shuffle training data 
+    idx = np.array(range(len(train_x)))
+    np.random.shuffle(idx)
+    train_x = train_x[idx]
+    train_y = train_y[idx]
 
     return train_x, train_y, valid_x, valid_y, Xte, Yte
