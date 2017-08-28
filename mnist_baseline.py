@@ -6,7 +6,6 @@ Architecture:
     Loss function = Cross entropy 
 
 Paper: https://arxiv.org/pdf/1602.02830.pdf ( Binarized Neural Networks: Training Neural Networks with Weights and Activations Constrained to +1 or -1)
-Initial Learning rate = 0.001
 '''
 
 import theano 
@@ -28,6 +27,7 @@ import argparse
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
 parser.add_argument("--epochs", type=int, help="Number of epochs")
 parser.add_argument("--batch_size", type=int, help="Batchsize value (different for local/prod)")
+parser.add_argument("--lr", type=float, help="Initial learning rate")
 args = parser.parse_args()
 
 def main():
@@ -35,7 +35,7 @@ def main():
     train_x, train_y, valid_x, valid_y, test_x, test_y = get_mnist()
 
     num_epochs = args.epochs
-    eta        = 0.001
+    eta        = args.lr 
     batch_size = args.batch_size
 
     # input 
@@ -61,7 +61,7 @@ def main():
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
-    cost     = xent.mean() # not scaling the mean
+    cost     = xent.mean() 
 
     # errors 
     y_pred   = T.argmax(softmax.output, axis=1)
