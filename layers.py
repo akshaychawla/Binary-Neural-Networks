@@ -29,7 +29,7 @@ class Dense():
                 name  = "W_" + name
                 )
         self.b = theano.shared(
-                np.zeros((n_out,)),
+                np.zeros((n_out,)).astype(np.float32),
                 name  = "b_" + name, 
                 )
 
@@ -43,7 +43,7 @@ class Dense():
         fan_in, fan_out = filter_shape
         fan_in, fan_out = float(fan_in), float(fan_out)
         weights = np.random.normal(loc = 0.0, scale = np.sqrt(2/fan_in), size = filter_shape)
-        return weights
+        return weights.astype(np.float32)
 
 
 class Conv2D():
@@ -55,7 +55,7 @@ class Conv2D():
                 name = "W_" + name  
                 )
         self.b = theano.shared(
-                np.zeros((filter_shape[0],)),
+                np.zeros((filter_shape[0],)).astype(np.float32),
                 name = "b_" + name
                 )
         self.input = input 
@@ -70,7 +70,7 @@ class Conv2D():
         fan_in = np.prod(filter_shape[1:]).astype("float32")
         weights = np.random.normal(loc = 0.0, scale = np.sqrt(2/fan_in), size = filter_shape)
         
-        return weights
+        return weights.astype(np.float32)
         
 
 class BinaryConv2D():
@@ -82,7 +82,7 @@ class BinaryConv2D():
                 name = "W_" + name  
                 )
         self.b = theano.shared(
-                np.zeros((filter_shape[0],)),
+                np.zeros((filter_shape[0],)).astype(np.float32),
                 name = "b_" + name
                 )
         
@@ -101,7 +101,12 @@ class Pool2D():
 class Flatten():
     def __init__(self, input):
         self.input = input 
-        self.output = T.flatten(self.input, ndim=2)
+        if "0.9.0" in theano.__version__:
+            self.output = T.flatten(self.input, outdim=2) # support theano 0.9.0 api
+        elif "0.10.0" in theano.__version__:
+            self.output = T.flatten(self.input, ndim=2) # support theano 0.10.0 api
+        else:
+            raise NotImplementedError("this version of theano is not supported") # I can't support all versions; I'm only human. 
 
 
 class Activation():
@@ -122,7 +127,7 @@ class BinaryDense():
                 name  = "W_" + name
                 )
         self.b = theano.shared(
-                np.zeros((n_out,)),
+                np.zeros((n_out,)).astype(np.float32),
                 name  = "b_" + name, 
                 )
 
