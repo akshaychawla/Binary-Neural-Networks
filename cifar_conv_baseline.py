@@ -27,6 +27,7 @@ import argparse
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
 parser.add_argument("--epochs", type=int, help="Number of epochs")
 parser.add_argument("--batch_size", type=int, help="Batchsize value (different for local/prod)")
+parser.add_argument("--lr", type=float, help="Initial learning rate")
 args = parser.parse_args()
 
 def main():
@@ -36,7 +37,7 @@ def main():
     labels = unpickle('./cifar-10-batches-py/batches.meta')['label_names']
 
     num_epochs = args.epochs
-    eta        = 0.001
+    eta        = args.lr
     batch_size = args.batch_size
 
     # input 
@@ -66,7 +67,7 @@ def main():
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
-    cost     = xent.mean()/batch_size # scaling the mean
+    cost     = xent.mean()
     
     # errors 
     y_pred   = T.argmax(softmax.output, axis=1)
