@@ -6,7 +6,6 @@ Architecture:
     Loss function = Cross entropy 
 
 Source for n/w : https://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar10.html
-Initial Learning rate = 0.001 (TODO)
 '''
 
 import theano 
@@ -22,6 +21,7 @@ from time import time
 from layers import Dense, Activation, Dropout, Conv2D, Pool2D, Flatten
 from utils import get_cifar10, ModelCheckpoint, load_model, unpickle
 import ipdb
+from sklearn import preprocessing
 import argparse
 
 parser = argparse.ArgumentParser(description="baseline neural network for mnist")
@@ -35,7 +35,12 @@ def main():
 
     train_x, train_y, valid_x, valid_y, test_x, test_y = get_cifar10('./cifar-10-batches-py/')
     labels = unpickle('./cifar-10-batches-py/batches.meta')['label_names']
-
+    
+    train_x = train_x.astype(np.float32) / 255.0
+    valid_x = valid_x.astype(np.float32) / 255.0
+    test_x  = test_x.astype(np.float32) / 255.0
+    
+    
     num_epochs = args.epochs
     eta        = args.lr
     batch_size = args.batch_size
@@ -45,9 +50,10 @@ def main():
     y = T.ivector("y")
     
     # test values
-    # x.tag.test_value = np.random.randn(5, 3, 32, 32)
+    # x.tag.test_value = np.random.randn(5, 3, 32, 32).astype(np.float32)
     # y.tag.test_value = np.array([1,2,1,4,5]).astype(np.int32)
-    
+    # import ipdb; ipdb.set_trace()
+
     # network definition 
     conv1 = Conv2D(input=x, num_filters=16, input_channels=3, size=3, strides=(1,1), padding=1,  name="conv1")
     act1  = Activation(input=conv1.output, activation="relu", name="act1")
