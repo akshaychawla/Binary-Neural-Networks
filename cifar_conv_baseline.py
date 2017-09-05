@@ -2,7 +2,7 @@
 Baseline neural network for classification of CIFAR10 images 
 
 Architecture: 
-    Conv -> Pool -> Conv -> Pool -> Conv -> Pool -> Flatten -> FC -> ReLu -> Softmax  
+    Conv -> Pool -> Conv -> Pool -> Conv -> Pool -> Flatten -> FC -> ReLu -> FC -> Softmax  
     Loss function = Cross entropy 
 
 Source for n/w : https://cs.stanford.edu/people/karpathy/convnetjs/demo/cifar10.html
@@ -55,21 +55,23 @@ def main():
     # import ipdb; ipdb.set_trace()
 
     # network definition 
-    conv1 = Conv2D(input=x, num_filters=16, input_channels=3, size=3, strides=(1,1), padding=1,  name="conv1")
+    conv1 = Conv2D(input=x, num_filters=50, input_channels=3, size=3, strides=(1,1), padding=1,  name="conv1")
     act1  = Activation(input=conv1.output, activation="relu", name="act1")
     pool1 = Pool2D(input=act1.output, stride=(2,2), name="pool1")
     
-    conv2 = Conv2D(input=pool1.output, num_filters=20, input_channels=16, size=3, strides=(1,1), padding=1,  name="conv2")
+    conv2 = Conv2D(input=pool1.output, num_filters=100, input_channels=50, size=3, strides=(1,1), padding=1,  name="conv2")
     act2  = Activation(input=conv2.output, activation="relu", name="act2")
     pool2 = Pool2D(input=act2.output, stride=(2,2), name="pool2")
 
-    conv3 = Conv2D(input=pool2.output, num_filters=32, input_channels=20, size=3, strides=(1,1), padding=1,  name="conv3")
+    conv3 = Conv2D(input=pool2.output, num_filters=200, input_channels=100, size=3, strides=(1,1), padding=1,  name="conv3")
     act3  = Activation(input=conv3.output, activation="relu", name="act3")
     pool3 = Pool2D(input=act3.output, stride=(2,2), name="pool3")
 
     flat  = Flatten(input=pool3.output)
-    fc1   = Dense(input=flat.output, n_in=32*4*4, n_out=10, name="fc1")
-    softmax  = Activation(input=fc1.output, activation="softmax", name="softmax")
+    fc1   = Dense(input=flat.output, n_in=200*4*4, n_out=500, name="fc1")
+    act4  = Activation(input=fc1.output, activation="relu", name="act4")
+    fc2   = Dense(input=act4.output, n_in=500, n_out=10, name="fc2")
+    softmax  = Activation(input=fc2.output, activation="softmax", name="softmax")
 
     # loss
     xent     = T.nnet.nnet.categorical_crossentropy(softmax.output, y)
