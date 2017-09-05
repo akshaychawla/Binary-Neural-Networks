@@ -5,6 +5,8 @@ An attempt to recreate neural networks where the weights and activations are bin
 
 ![Quantize](readme_data/quantize.jpg "Quantize")
 
+NOTE TO SELF: With shallow cifar, test accuracy was 63%. 
+
 ### Requirements 
 1. Theano (0.9.0 or higher)
 2. Python 2.7
