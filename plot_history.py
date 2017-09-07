@@ -45,10 +45,12 @@ def main():
     plt.plot(range(len(loss)), loss)
     plt.xlabel("epoch")
     plt.title("loss")
+    plt.grid()
     plt.subplot(122)
     plt.plot(range(len(acc)), acc)
     plt.xlabel("epoch")
     plt.title("validation accuracy")
+    plt.grid()
     plt.show()
     
 if __name__ == "__main__":
