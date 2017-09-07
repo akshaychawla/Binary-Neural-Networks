@@ -31,21 +31,20 @@ In this experiment a baseline and binarized version of a standard MLP is trained
 #### Results
 **1. Baseline**
 
-<img src="readme_data/baseline_loss.png" alt="Drawing" style="width: 200px;"/>
-<img src="readme_data/baseline_acc.png" alt="Drawing" style="width: 200px;"/>
+<img src="readme_data/mnist_baseline_results.png" alt="Drawing" style="width: 300px;"/>
 <!-- [Training Loss](readme_data/baseline_loss.png "Training Loss") ![Validation Accuracy](readme_data/baseline_acc.png "Validation Accuracy") !-->
 Test accuracy: 0.9687   
-
+<br>
 
 **2. Binarized** 
 
-<img src="readme_data/binary_loss.png" alt="Drawing" style="width: 200px;"/>
-<img src="readme_data/binary_acc.png" alt="Drawing" style="width: 200px;"/>
+<img src="readme_data/mnist_binary_results.png" alt="Drawing" style="width: 300px;"/>
 <!-- ![Training Loss](readme_data/binary_loss.png "Training Loss") ![Validation Accuracy](readme_data/binary_acc.png "Validation Accuracy") -->
 Test accuracy: 0.9372 
+<br>
 
 ### Experiment 2: CIFAR 10
-(TODO)
+
 
 #### Results
 (TODO)
