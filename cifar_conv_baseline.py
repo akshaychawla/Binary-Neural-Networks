@@ -48,10 +48,14 @@ def main():
     # input 
     x = T.tensor4("x")
     y = T.ivector("y")
-    
+    drop_switch = T.scalar("drop_switch")
+
     # test values
-    # x.tag.test_value = np.random.randn(5, 3, 32, 32).astype(np.float32)
+    # x.tag.test_value = np.random.randn(6, 3, 32, 32).astype(np.float32)
     # y.tag.test_value = np.array([1,2,1,4,5]).astype(np.int32)
+    # x.tag.test_value = x.tag.test_value / x.tag.test_value.max()
+
+    # drop_switch.tag.test_value = 1.0
     # import ipdb; ipdb.set_trace()
 
     # network definition 
@@ -68,9 +72,11 @@ def main():
     pool3 = Pool2D(input=act3.output, stride=(2,2), name="pool3")
 
     flat  = Flatten(input=pool3.output)
-    fc1   = Dense(input=flat.output, n_in=200*4*4, n_out=500, name="fc1")
+    drop4 = Dropout(input=flat.output, p=0.5, drop_switch=drop_switch)
+    fc1   = Dense(input=drop4.output, n_in=200*4*4, n_out=500, name="fc1")
     act4  = Activation(input=fc1.output, activation="relu", name="act4")
-    fc2   = Dense(input=act4.output, n_in=500, n_out=10, name="fc2")
+    drop5 = Dropout(input=act4.output, p=0.5, drop_switch=drop_switch)
+    fc2   = Dense(input=drop5.output, n_in=500, n_out=10, name="fc2")
     softmax  = Activation(input=fc2.output, activation="softmax", name="softmax")
 
     # loss
@@ -92,16 +98,16 @@ def main():
 
     # compiling train, predict and test fxns     
     train   = theano.function(
-                inputs  = [x,y],
+                inputs  = [x,y,drop_switch],
                 outputs = cost,
                 updates = updates
             )
     predict = theano.function(
-                inputs  = [x],
+                inputs  = [x,drop_switch],
                 outputs = y_pred
             )
     test    = theano.function(
-                inputs  = [x,y],
+                inputs  = [x,y,drop_switch],
                 outputs = errors
             )
 
@@ -117,7 +123,7 @@ def main():
         t = tqdm(range(0, len(train_x), batch_size))
         for lower in t:
             upper = min(len(train_x), lower + batch_size)
-            loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32))     
+            loss  = train(train_x[lower:upper], train_y[lower:upper].astype(np.int32), 1.0) # drop     
             t.set_postfix(loss="{:.2f}".format(float(loss)))
             epoch_hist["loss"].append(loss.astype(np.float32))
         
@@ -131,7 +137,7 @@ def main():
                 )
 
         # validation accuracy 
-        val_acc  =  1.0 - test(valid_x, valid_y.astype(np.int32))
+        val_acc  =  1.0 - test(valid_x, valid_y.astype(np.int32), 0.0) # nodrop
         print "Validation Accuracy: ", val_acc
         logger.log_scalar(
                 tag="Validation Accuracy", 
@@ -144,7 +150,7 @@ def main():
     best_val_acc_filename = checkpoint.best_val_acc_filename
     print "Using ", best_val_acc_filename, " to calculate best test acc."
     load_model(path=best_val_acc_filename, params=params)
-    test_acc = 1.0 - test(test_x, test_y.astype(np.int32))    
+    test_acc = 1.0 - test(test_x, test_y.astype(np.int32), 0.0) # no drop 
     print "Test accuracy: ",test_acc
 
     
