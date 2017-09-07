@@ -5,6 +5,7 @@ logs/*
 *.tar.gz
 !readme_data/network_arch.png
 !readme_data/quantize.png
+!readme_data/*
 snapshots/*
 cifar-10-batches-py/data_batch*
 cifar-10-batches-py/readme.html
