@@ -88,7 +88,7 @@ def main():
     errors   = T.mean(T.neq(y, y_pred))
 
     # updates 
-    params   = conv1.params + conv2.params + conv3.params + fc1.params 
+    params   = conv1.params + conv2.params + conv3.params + fc1.params + fc2.params  
     grads    = [T.grad(cost, param) for param in params]
     updates  = []
     for p,g in zip(params, grads):
