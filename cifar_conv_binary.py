@@ -82,13 +82,15 @@ def main():
     y_pred   = T.argmax(softmax.output, axis=1)
     errors   = T.mean(T.neq(y, y_pred))
 
-    # updates 
-    params   = conv1.params + conv2.params + conv3.params + fc1.params 
-    grads    = [T.grad(cost, param) for param in params]
+    # updates + clipping (+-1) 
+    params   = conv1.params + conv2.params + conv3.params + fc1.params + fc2.params 
+    params_bin = conv1.params_bin + conv2.params_bin + conv3.params_bin + fc1.params_bin + fc2.params_bin
+    grads    = [T.grad(cost, param) for param in params_bin] # calculate grad w.r.t binary parameters
+
     updates  = []
     for p,g in zip(params, grads):
         updates.append(
-                (p, p - eta*g) #sgd
+                (p, clip_weights(p - eta*g)) #sgd + clipping update
             )
 
     # compiling train, predict and test fxns     
