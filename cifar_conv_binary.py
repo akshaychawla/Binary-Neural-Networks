@@ -18,7 +18,7 @@ import gzip, cPickle, math
 from tensorboard_logging import Logger
 from tqdm import *
 from time import time 
-from layers import Dense, Activation, Dropout, Conv2D, Pool2D, Flatten, BinaryConv2D, BinaryDense
+from layers import Dense, Activation, Dropout, Conv2D, Pool2D, Flatten, BinaryConv2D, BinaryDense, clip_weights
 from utils import get_cifar10, ModelCheckpoint, load_model, unpickle
 import ipdb
 import argparse
